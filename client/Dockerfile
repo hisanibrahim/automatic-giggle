@@ -8,15 +8,14 @@ ENV NODE_ENV production
 WORKDIR /app
 
 # Installing dependencies
-COPY ./client/package.json ./
-COPY ./client/yarn.lock ./
+COPY package.json yarn.lock ./
 RUN yarn
 
 # Copying all the files in our project
 COPY . .
 
 # Building our application
-RUN yarn build --production
+RUN yarn build
 
 # Fetching the latest nginx image
 FROM nginx
