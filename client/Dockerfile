@@ -8,7 +8,8 @@ ENV NODE_ENV production
 WORKDIR /app
 
 # Installing dependencies
-COPY ./package.json ./
+COPY ./client/package.json ./
+COPY ./client/yarn.lock ./
 RUN yarn
 
 # Copying all the files in our project
