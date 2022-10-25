@@ -5,6 +5,7 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
 
 env:
   ARM_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
@@ -18,8 +19,6 @@ jobs:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
     environment: production
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
@@ -33,4 +32,29 @@ jobs:
         working-directory: ${{ env.TF_DIRECTORY }}
       - name: Terraform Plan
         run: terraform plan
+        working-directory: ${{ env.TF_DIRECTORY }}
+
+  terraform_apply:
+    name: "Terraform Apply"
+    needs: [terraform_plan]
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: terraform Init
+        run: terraform init
+        working-directory: ${{ env.TF_DIRECTORY }}
+
+      - name: terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve
         working-directory: ${{ env.TF_DIRECTORY }}
