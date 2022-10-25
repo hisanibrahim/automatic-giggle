@@ -1,0 +1,53 @@
+name: "Terraform Azure"
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  ARM_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
+  ARM_CLIENT_SECRET: ${{secrets.AZURE_CLIENT_SECRET}}
+  ARM_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+  ARM_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
+  TF_DIRECTORY: "${{github.workspace}}/.terraform/azure"
+
+jobs:
+  terraform_plan:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ env.TF_DIRECTORY }}
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ${{ env.TF_DIRECTORY }}
+
+  terraform_apply:
+    name: "Terraform Apply"
+    needs: [terraform_plan]
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ env.TF_DIRECTORY }}
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ${{ env.TF_DIRECTORY }}
