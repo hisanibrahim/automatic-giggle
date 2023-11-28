@@ -1,0 +1,27 @@
+
+# To configure this workflow:
+#
+# 1. Set the following secrets in your repository (instructions for getting these can be found at https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux):
+#    - AZURE_CLIENT_ID
+#    - AZURE_TENANT_ID
+#    - AZURE_SUBSCRIPTION_ID
+
+name: Build and deploy an app to AKS
+
+on:
+  push:
+    branches: [ "main" ]  
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  loginToAzure:
+    runs-on: ubuntu-latest
+    steps:
+    
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
